@@ -206,3 +206,5 @@ _deps
 # Sonarlint plugin
 
 # End of https://www.toptal.com/developers/gitignore/api/c++,intellij+all,code,clion+all,cmake
+
+bin/
