@@ -37,9 +37,28 @@ int spaces_num = 56;
 cv::Size space_size(80, 80);
 
 int main(int argc, char **argv) {
-  std::cout << "Train OpenCV Start" << "\n";
-  train_parking();
-  std::cout << "Train OpenCV End" << "\n";
+  //std::cout << "Train OpenCV Start" << "\n";
+  //train_parking();
+  //std::cout << "Train OpenCV End" << "\n";
+//
+//  {
+//    string line;
+//
+//    fstream detector_file("data/out_prediction.txt");
+//    fstream groundtruth_file("data/groundtruth.txt");
+//
+//    std::cout << "is open detector " << detector_file.is_open() << std::endl;
+//    std::cout << "is open groundtr " << groundtruth_file.is_open() << std::endl;
+//    int val;
+//    while ( getline (groundtruth_file,line) )
+//    {
+//      cout << line << '\n';
+//    }
+//    groundtruth_file.close();
+//
+//
+//    return 0;
+//  }
   
   std::cout << "Test OpenCV Start" << "\n";
   test_parking();
@@ -76,7 +95,7 @@ void train_parking() {
     
     //training label for each parking space
     for (int i = 0; i < spaces_num; i++) {
-      train_labels.push_back(label);
+      train_labels.emplace_back(label);
     }
     
   }
@@ -91,6 +110,10 @@ void train_parking() {
 }
 
 void test_parking() {
+  
+  int threshold1 = 100;
+  int threshold2 = 200;
+  int sumThreshold = 70000;
   
   space *spaces = new space[spaces_num];
   load_parking_geometry("data/parking_map.txt", spaces);
@@ -110,28 +133,55 @@ void test_parking() {
     std::vector<Mat> test_images;
     extract_space(spaces, frame, test_images);
     
+    
     int colNum = 0;
     for (int i = 0; i < test_images.size(); i++) {
+      cv::Mat blurImage;
+      cv::Mat edgesImage;
       
-      int predict_label = 0;
+      cv::medianBlur(test_images[i], blurImage, 3);
+      cv::Canny(blurImage, edgesImage, threshold1, threshold2);
+      int predict_label = false;
+      
+      uint64_t sum = 0;
+      
+      for (int row = 0; row < edgesImage.rows; row++) {
+        for (int col = 0; col < edgesImage.cols; col++) {
+          sum += edgesImage.at<cv::Vec3b>(row, col)[0];
+        }
+      }
+      
+      if(sum > sumThreshold){
+        predict_label = true;
+      }
+      
       out_label_file << predict_label << "\n";
       spaces[i].occup = predict_label;
       imshow("test_img", test_images[i]);
-      waitKey(200);
+      imshow("test_img_blur", blurImage);
+      imshow("test_img_edges", edgesImage);
+      //printf("sum of pixels: %lu, occupied: %s\n", sum, predict_label? "yes": "no");
+      printf("%lu\n", sum);
+      
+      //waitKey(0);
+      //waitKey(20);
     }
     
     //draw detection
     draw_detection(spaces, draw_frame);
     namedWindow("draw_frame", 0);
     imshow("draw_frame", draw_frame);
-    waitKey(200);
+    //waitKey(1);
     
   }
-  
+  out_label_file.close();
   //evaluation
   fstream detector_file("data/out_prediction.txt");
   fstream groundtruth_file("data/groundtruth.txt");
   evaluation(detector_file, groundtruth_file);
+  
+  detector_file.close();
+  groundtruth_file.close();
 }
 
 int load_parking_geometry(const char *filename, space *spaces) {
@@ -194,10 +244,7 @@ void extract_space(space *spaces, Mat in_mat, std::vector<Mat> &vector_images) {
     Mat H = findHomography(src_mat, dest_mat, 0);
     warpPerspective(in_mat, out_mat, H, space_size);
     
-    //imshow("out_mat", out_mat);
-    //waitKey(0);
-    
-    vector_images.push_back(out_mat);
+    vector_images.emplace_back(out_mat);
     
   }
   
@@ -227,13 +274,32 @@ void evaluation(fstream &detectorOutputFile, fstream &groundTruthFile) {
   int falseNegatives = 0;
   int truePositives = 0;
   int trueNegatives = 0;
+  std::string line;
+  if(!detectorOutputFile.is_open()) {
+    std::cout << "detector file output is not open" << std::endl;
+    return;
+  }
+  
+  
+  if(!groundTruthFile.is_open()) {
+    std::cout << "ground truth file output is not open" << std::endl;
+    return;
+  }
+  
+  detectorOutputFile.clear();
+  detectorOutputFile.seekg (0, ios::beg);
+  groundTruthFile.clear();
+  groundTruthFile.seekg (0, ios::beg);
+  
+  
   while (true) {
+
     if (!(detectorOutputFile >> detectorLine)) break;
     groundTruthFile >> groundTruthLine;
-    
+//
     int detect = detectorLine;
     int ground = groundTruthLine;
-    
+
     //false positives
     if ((detect == 1) && (ground == 0)) {
       falsePositives++;
