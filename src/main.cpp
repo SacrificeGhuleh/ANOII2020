@@ -15,6 +15,11 @@ using namespace cv::ml;
 using namespace dlib;
 */
 
+
+const unsigned int threshold1 = 60;
+const unsigned int threshold2 = 200;
+const unsigned int blurDiam = 3;
+
 struct space {
   int x01, y01, x02, y02, x03, y03, x04, y04, occup;
 };
@@ -37,28 +42,6 @@ int spaces_num = 56;
 cv::Size space_size(80, 80);
 
 int main(int argc, char **argv) {
-  //std::cout << "Train OpenCV Start" << "\n";
-  //train_parking();
-  //std::cout << "Train OpenCV End" << "\n";
-//
-//  {
-//    string line;
-//
-//    fstream detector_file("data/out_prediction.txt");
-//    fstream groundtruth_file("data/groundtruth.txt");
-//
-//    std::cout << "is open detector " << detector_file.is_open() << std::endl;
-//    std::cout << "is open groundtr " << groundtruth_file.is_open() << std::endl;
-//    int val;
-//    while ( getline (groundtruth_file,line) )
-//    {
-//      cout << line << '\n';
-//    }
-//    groundtruth_file.close();
-//
-//
-//    return 0;
-//  }
   
   std::cout << "Test OpenCV Start" << "\n";
   test_parking();
@@ -111,9 +94,7 @@ void train_parking() {
 
 void test_parking() {
   
-  int threshold1 = 100;
-  int threshold2 = 200;
-  int sumThreshold = 70000;
+  int sumThreshold = 274;
   
   space *spaces = new space[spaces_num];
   load_parking_geometry("data/parking_map.txt", spaces);
@@ -121,6 +102,8 @@ void test_parking() {
   fstream test_file("data/test_images.txt");
   ofstream out_label_file("data/out_prediction.txt");
   string test_path;
+  
+  int counter = 0;
   
   while (test_file >> test_path) {
     //std::cout << "test_path: " << test_path << "\n";
@@ -139,7 +122,7 @@ void test_parking() {
       cv::Mat blurImage;
       cv::Mat edgesImage;
       
-      cv::medianBlur(test_images[i], blurImage, 3);
+      cv::medianBlur(test_images[i], blurImage, blurDiam);
       cv::Canny(blurImage, edgesImage, threshold1, threshold2);
       int predict_label = false;
       
@@ -147,22 +130,33 @@ void test_parking() {
       
       for (int row = 0; row < edgesImage.rows; row++) {
         for (int col = 0; col < edgesImage.cols; col++) {
-          sum += edgesImage.at<cv::Vec3b>(row, col)[0];
+          sum += edgesImage.at<cv::Vec3b>(row, col)[0]/255;
         }
       }
       
-      if(sum > sumThreshold){
+      if (sum > sumThreshold) {
         predict_label = true;
       }
       
       out_label_file << predict_label << "\n";
       spaces[i].occup = predict_label;
       imshow("test_img", test_images[i]);
+      
+      stringstream ss;
+      string path;
+      
+      if (predict_label != 0) {
+        path = "output/cars/";
+      } else {
+        path = "output/empty/";
+      }
+      
+      ss << path << "img" << counter++ << ".jpg";
+      
+      imwrite(ss.str(), test_images[i]);
+      
       imshow("test_img_blur", blurImage);
       imshow("test_img_edges", edgesImage);
-      //printf("sum of pixels: %lu, occupied: %s\n", sum, predict_label? "yes": "no");
-      printf("%lu\n", sum);
-      
       //waitKey(0);
       //waitKey(20);
     }
@@ -171,7 +165,7 @@ void test_parking() {
     draw_detection(spaces, draw_frame);
     namedWindow("draw_frame", 0);
     imshow("draw_frame", draw_frame);
-    //waitKey(1);
+    waitKey(0);
     
   }
   out_label_file.close();
@@ -275,39 +269,95 @@ void evaluation(fstream &detectorOutputFile, fstream &groundTruthFile) {
   int truePositives = 0;
   int trueNegatives = 0;
   std::string line;
-  if(!detectorOutputFile.is_open()) {
+  if (!detectorOutputFile.is_open()) {
     std::cout << "detector file output is not open" << std::endl;
     return;
   }
   
   
-  if(!groundTruthFile.is_open()) {
+  if (!groundTruthFile.is_open()) {
     std::cout << "ground truth file output is not open" << std::endl;
     return;
   }
   
   detectorOutputFile.clear();
-  detectorOutputFile.seekg (0, ios::beg);
+  detectorOutputFile.seekg(0, ios::beg);
   groundTruthFile.clear();
-  groundTruthFile.seekg (0, ios::beg);
+  groundTruthFile.seekg(0, ios::beg);
   
+  ofstream moveShellFile("move.sh", ofstream::trunc);
   
+  int counter = 0;
   while (true) {
-
+    
     if (!(detectorOutputFile >> detectorLine)) break;
     groundTruthFile >> groundTruthLine;
 //
     int detect = detectorLine;
     int ground = groundTruthLine;
-
+    
+    stringstream ss;
+    string path;
+    
+    if (detect != 0) {
+      path = "./output/cars/";
+    } else {
+      path = "./output/empty/";
+    }
+  
+    ss << path << "img" << counter++;
+    string filename = ss.str();
     //false positives
     if ((detect == 1) && (ground == 0)) {
       falsePositives++;
+      
+      ss << ".jpg";
+      moveShellFile << "mv " << ss.str() << " ./output/false/positives\n";
+      
+      cv::Mat falseImg = imread(ss.str());
+      cv::Mat blurImage;
+      cv::Mat edgesImage;
+  
+      cv::medianBlur(falseImg, blurImage, blurDiam);
+      cv::Canny(blurImage, edgesImage, threshold1, threshold2);
+      
+      stringstream blurPath;
+      blurPath << "./output/false/positives/" << counter-1 << "_blur.jpg";
+  
+  
+      stringstream edgesPath;
+      edgesPath << "./output/false/positives/" << counter-1 << "_edges.jpg";
+  
+  
+      imwrite( blurPath.str(),blurImage);
+      imwrite( edgesPath.str(),edgesImage);
     }
     
     //false negatives
     if ((detect == 0) && (ground == 1)) {
       falseNegatives++;
+      
+      ss << ".jpg";
+      moveShellFile << "mv " << ss.str() << " ./output/false/negatives\n";
+  
+  
+      cv::Mat falseImg = imread(ss.str());
+      cv::Mat blurImage;
+      cv::Mat edgesImage;
+  
+      cv::medianBlur(falseImg, blurImage, blurDiam);
+      cv::Canny(blurImage, edgesImage, threshold1, threshold2);
+  
+      stringstream blurPath;
+      blurPath << "./output/false/negatives/" << counter-1 << "_blur.jpg";
+  
+  
+      stringstream edgesPath;
+      edgesPath << "./output/false/negatives/" << counter-1 << "_edges.jpg";
+  
+  
+      imwrite( blurPath.str(),blurImage);
+      imwrite( edgesPath.str(),edgesImage);
     }
     
     //true positives
@@ -325,14 +375,21 @@ void evaluation(fstream &detectorOutputFile, fstream &groundTruthFile) {
   std::cout << "falseNegatives " << falseNegatives << "\n";
   std::cout << "truePositives " << truePositives << "\n";
   std::cout << "trueNegatives " << trueNegatives << "\n";
-  float acc = (float) (truePositives + trueNegatives) / (float) (truePositives + trueNegatives + falsePositives + falseNegatives);
-  std::cout << "Accuracy " << acc << "\n";
+  float precision = (float) (truePositives + trueNegatives) / (float) (truePositives + trueNegatives + falsePositives + falseNegatives);
+  float sensitivity = static_cast<float>(truePositives) / static_cast<float>(truePositives + falseNegatives);
+  
+  float f1 = 2.f * (precision * sensitivity) / (precision + sensitivity);
+  
+  std::cout << "Accuracy    " << precision << "\n";
+  std::cout << "Sensitivity " << sensitivity << "\n";
+  std::cout << "f1 score    " << f1 << "\n";
+  
 }
 
 void convert_to_ml(const std::vector<cv::Mat> &train_samples, cv::Mat &trainData) {
   //--Convert data
   const int rows = (int) train_samples.size();
-    const int cols = (int) std::max(train_samples[0].cols, train_samples[0].rows);
+  const int cols = (int) std::max(train_samples[0].cols, train_samples[0].rows);
   cv::Mat tmp(1, cols, CV_32FC1); //< used for transposition if needed
   trainData = cv::Mat(rows, cols, CV_32FC1);
   std::vector<Mat>::const_iterator itr = train_samples.begin();
