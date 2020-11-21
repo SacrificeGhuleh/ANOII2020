@@ -1,10 +1,6 @@
 #include <iostream>
 #include <fstream>
 
-//opencv - https://opencv.org/
-#include <opencv2/opencv.hpp>
-
-using namespace cv;
 
 //dlib - http://dlib.net/
 
@@ -15,31 +11,7 @@ using namespace cv;
 
 #include "detectorinputset.h"
 #include "cannysolver.h"
-
-//const unsigned int threshold1 = 60;
-//const unsigned int threshold2 = 200;
-//const unsigned int blurDiam = 3;
-//
-//struct space {
-//  int x01, y01, x02, y02, x03, y03, x04, y04, occup;
-//};
-//
-//int load_parking_geometry(const char *filename, space *spaces);
-//
-//void extract_space(space *spaces, Mat in_mat, std::vector<Mat> &vector_images);
-//
-//void draw_detection(space *spaces, Mat &frame);
-//
-//void evaluation(std::fstream &detectorOutputFile, std::fstream &groundTruthFile);
-//
-//void train_parking();
-//
-//void test_parking();
-//
-//void convert_to_ml(const std::vector<cv::Mat> &train_samples, cv::Mat &trainData);
-//
-//int spaces_num = 56;
-//cv::Size space_size(80, 80);
+#include "traininputset.h"
 
 void getGroundTruth(const std::string &filename, std::vector<uint8_t> &groundTruthVector) {
   std::ifstream groundTruthFile(filename);
@@ -62,9 +34,11 @@ int main(int argc, char **argv) {
   getGroundTruth("data/groundtruth.txt", groundTruth);
   std::array<Space, SPACES_COUNT> spaces{};
   
-  DetectorInputSet::loadParkingGeometry("data/parking_map.txt", spaces);
+  InputSet::loadParkingGeometry("data/parking_map.txt", spaces);
   
+  TrainInputSet trainInputSet("data/train_images.txt", spaces);
   DetectorInputSet inputSet("data/test_images.txt", spaces);
+  
   
   CannySolver cannySolver(274, 3);
   cannySolver.solve(inputSet);

@@ -10,21 +10,17 @@
 #include <opencv2/core/mat.hpp>
 
 #include "space.h"
+#include "inputset.h"
 
-class DetectorInputSet {
+class DetectorInputSet : public InputSet {
 public:
   explicit DetectorInputSet(const std::string &filename, const std::array<Space, SPACES_COUNT> &spaces);
   
-  
-  static void loadParkingGeometry(const char *filename, std::array<Space, SPACES_COUNT> &spaces);
-  
-  typedef std::pair<cv::Mat, std::vector<std::pair<cv::Mat, Space>>> InputPair;
+  typedef std::pair<cv::Mat, std::vector<LoadedData>> InputPair;
   
   const std::vector<InputPair> &getInputSet() const;
 
 private:
-  void extractSpaces(const std::array<Space, SPACES_COUNT> &spaces, const cv::Mat &inMat);
-  
   std::vector<InputPair> inputSet_;
 };
 
