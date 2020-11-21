@@ -4,11 +4,15 @@ SET(CMAKE_CXX_STANDARD 17)
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-# Where to find CMake modules and OpenCV
-#SET(OpenCV_DIR "C:/opencv-4.1.1/mingw-build/install_release")
+# Where to find CMake modules
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+
+# Where to find OpenCV
 INCLUDE(MacroOpenCV)
 FIND_PACKAGE(OpenCV REQUIRED)
 INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
+
+# Where to find dlib
+find_package(dlib REQUIRED)
 
 ADD_SUBDIRECTORY(src)

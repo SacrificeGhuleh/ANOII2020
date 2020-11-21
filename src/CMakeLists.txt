@@ -1,12 +1,12 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.14)
-PROJECT(ParkingLotOccupationDetector)
+cmake_minimum_required(VERSION 3.14)
+project(ParkingLotOccupationDetector)
 
 # add libs you need
-SET(OpenCV_LIBS opencv_core opencv_imgproc opencv_highgui opencv_imgcodecs opencv_calib3d)
-SET(SRC main.cpp)
+set(OpenCV_LIBS opencv_core opencv_imgproc opencv_highgui opencv_imgcodecs opencv_calib3d)
+set(SRC main.cpp timer.h colors.h solver.cpp solver.h trainedsolver.cpp trainedsolver.h solvescore.h cannysolver.cpp cannysolver.h detectorinputset.cpp detectorinputset.h space.h)
 
-ADD_EXECUTABLE(${PROJECT_NAME} ${SRC} cli.h)
-ADD_EXECUTABLE(CannyTester tester.cpp cli.h)
+add_executable(${PROJECT_NAME} ${SRC} cli.h)
+add_executable(CannyTester tester.cpp cli.h)
 
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
-TARGET_LINK_LIBRARIES(CannyTester PRIVATE ${OpenCV_LIBS})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS} dlib::dlib)
+target_link_libraries(CannyTester PRIVATE ${OpenCV_LIBS})
