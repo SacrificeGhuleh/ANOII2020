@@ -5,18 +5,14 @@
 #ifndef ANOII2020_TRAINEDSOLVER_H
 #define ANOII2020_TRAINEDSOLVER_H
 
+#include "traininputset.h"
 #include "solver.h"
 
 class TrainedSolver : public Solver {
 public:
-  explicit TrainedSolver(const std::string &name) : Solver(name) {};
+  TrainedSolver(const std::string &name);
   
-  typedef std::pair<cv::Mat, uint8_t> TrainPair;
-  
-  virtual void train(const std::vector<cv::Mat> &trainData) = 0;
-  
-  
-  static void loadTrainData(std::vector<cv::Mat> &trainData);
+  virtual void train(const TrainInputSet &trainData) = 0;
 };
 
 

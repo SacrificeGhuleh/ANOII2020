@@ -4,8 +4,4 @@
 
 #include "trainedsolver.h"
 
-#include <random>
-
-void TrainedSolver::loadTrainData(std::vector<cv::Mat> &trainData) {
-
-}
+TrainedSolver::TrainedSolver(const std::string &name) : Solver(name) {}

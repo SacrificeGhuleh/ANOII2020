@@ -4,6 +4,7 @@
 #include "detectorinputset.h"
 #include "cannysolver.h"
 #include "traininputset.h"
+#include "alexnetsolver.h"
 
 void getGroundTruth(const std::string &filename, std::vector<uint8_t> &groundTruthVector) {
   std::ifstream groundTruthFile(filename);
@@ -34,7 +35,12 @@ int main(int argc, char **argv) {
   CannySolver cannySolver(274, 3);
   cannySolver.solve(inputSet);
   cannySolver.evaluate(groundTruth);
-  cannySolver.drawDetection();
+//  cannySolver.drawDetection();
+  
+  AlexNetSolver alexNetSolver;
+  alexNetSolver.train(trainInputSet);
+  alexNetSolver.solve(inputSet);
+  alexNetSolver.evaluate(groundTruth);
   
 }
 //void convert_to_ml(const std::vector<cv::Mat> &train_samples, cv::Mat &trainData) {
