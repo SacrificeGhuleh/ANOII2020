@@ -12,7 +12,9 @@ class TrainedSolver : public Solver {
 public:
   TrainedSolver(const std::string &name);
   
-  virtual void train(const TrainInputSet &trainData) = 0;
+  virtual void train(const TrainInputSet &trainData);
+private:
+  virtual void trainImpl(const TrainInputSet &trainData) = 0;
 };
 
 

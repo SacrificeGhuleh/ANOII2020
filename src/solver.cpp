@@ -86,11 +86,55 @@ double Solver::solve(const DetectorInputSet &inputSet) {
   return elapsed;
 }
 
+
+double Solver::solve(const DetectorInputSet &inputSet, const std::vector<uint8_t> &groundTruth) {
+  Timer timer;
+  const auto &inputPairVector = inputSet.getInputSet();
+  int i = 0;
+  for (const auto &inputPair : inputPairVector) {
+    Solver::OccupancyData occupancyData;
+    cv::imshow("Current image", inputPair.first);
+    
+    for (const auto &extractedParkingLot : inputPair.second) {
+      Space space = extractedParkingLot.second;
+      space.occup = detect(extractedParkingLot.first);
+      auto color = Color::Green;
+      if (space.occup != groundTruth.at(i)) {
+        color = Color::Red;
+      }
+      
+      cv::Mat viewMat;
+      cv::cvtColor(extractedParkingLot.first, viewMat, cv::COLOR_GRAY2BGR);
+      std::stringstream debugText1;
+      debugText1 << "Det: " << space.occup;
+      cv::putText(viewMat, debugText1.str(), cv::Point(10, 10), cv::FONT_HERSHEY_PLAIN, 1, color);
+      
+      std::stringstream debugText2;
+      debugText2 << "Gnd: " << static_cast<int>(groundTruth.at(i));
+      cv::putText(viewMat, debugText2.str(), cv::Point(10, 20), cv::FONT_HERSHEY_PLAIN, 1, color);
+      
+      cv::imshow("Wrong detection", viewMat);
+      cv::waitKey(0);
+      
+      occupancyData.second.emplace_back(space);
+      i++;
+    }
+    occupancyData.first = &inputPair.first;
+    results.emplace_back(occupancyData);
+  }
+  double elapsed = timer.elapsed();
+  std::cout << solverName << " solved in " << elapsed << " seconds\n";
+  cv::destroyAllWindows();
+  return elapsed;
+}
+
+
 void Solver::drawDetection() {
   int sx, sy;
   
   for (const auto &result : results) {
     cv::Mat frame = result.first->clone();
+    cv::cvtColor(frame, frame, cv::COLOR_GRAY2BGR);
     for (const auto &detection : result.second) {
       cv::Point pt1, pt2;
       pt1.x = detection.x01;
@@ -101,19 +145,19 @@ void Solver::drawDetection() {
       sy = (pt1.y + pt2.y) / 2;
       if (detection.occup) {
 //        cv::circle(frame, cv::Point(sx, sy - 25), 12, Color::Black, -1);
-        cv::line(frame, cv::Point(detection.x01, detection.y01), cv::Point(detection.x03, detection.y03), Color::Black, 2);
-        cv::line(frame, cv::Point(detection.x02, detection.y02), cv::Point(detection.x04, detection.y04), Color::Black, 2);
+        cv::line(frame, cv::Point(detection.x01, detection.y01), cv::Point(detection.x03, detection.y03), Color::Red, 2);
+        cv::line(frame, cv::Point(detection.x02, detection.y02), cv::Point(detection.x04, detection.y04), Color::Red, 2);
         
-        cv::line(frame, cv::Point(detection.x01, detection.y01), cv::Point(detection.x02, detection.y02), Color::Black, 2);
-        cv::line(frame, cv::Point(detection.x02, detection.y02), cv::Point(detection.x03, detection.y03), Color::Black, 2);
-        cv::line(frame, cv::Point(detection.x03, detection.y03), cv::Point(detection.x04, detection.y04), Color::Black, 2);
-        cv::line(frame, cv::Point(detection.x04, detection.y04), cv::Point(detection.x01, detection.y01), Color::Black, 2);
+        cv::line(frame, cv::Point(detection.x01, detection.y01), cv::Point(detection.x02, detection.y02), Color::Red, 2);
+        cv::line(frame, cv::Point(detection.x02, detection.y02), cv::Point(detection.x03, detection.y03), Color::Red, 2);
+        cv::line(frame, cv::Point(detection.x03, detection.y03), cv::Point(detection.x04, detection.y04), Color::Red, 2);
+        cv::line(frame, cv::Point(detection.x04, detection.y04), cv::Point(detection.x01, detection.y01), Color::Red, 2);
       } else {
-        cv::circle(frame, cv::Point(sx, sy - 25), 12, Color::Black, 2);
+        cv::circle(frame, cv::Point(sx, sy - 25), 12, Color::Green, 2);
       }
     }
     cv::imshow("Detection", frame);
     cv::waitKey();
   }
-  
+  cv::destroyAllWindows();
 }

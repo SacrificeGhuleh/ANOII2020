@@ -16,12 +16,10 @@ class TrainInputSet : public InputSet {
 public:
   TrainInputSet(const std::string &filename, const std::array<Space, SPACES_COUNT> &spaces);
   
-  typedef std::pair<LoadedData, uint8_t> InputPair;
-  
-  const std::vector<InputPair> &getInputSet() const;
+  const std::vector<LoadedData> &getInputSet() const;
 
 private:
-  std::vector<InputPair> inputSet_;
+  std::vector<LoadedData> inputSet_;
 };
 
 

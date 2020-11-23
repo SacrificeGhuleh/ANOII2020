@@ -8,24 +8,21 @@
 #include "dlib/dnn.h"
 #include "dlib/opencv.h"
 
-void AlexNetSolver::train(const TrainInputSet &trainData) {
-  std::vector<dlib::matrix<dlib::rgb_pixel>> trainImages;
+void AlexNetSolver::trainImpl(const TrainInputSet &trainData) {
+  std::vector<dlib::matrix<uint8_t>> trainImages;
   std::vector<unsigned long> trainLabels;
   
   for (const auto &trainElement: trainData.getInputSet()) {
-    trainLabels.emplace_back(trainElement.second); // label
-    
-    const cv::Mat &trainImg = trainElement.first.first;
-    
-    trainImages.emplace_back(dlib::mat(dlib::cv_image<dlib::rgb_pixel>(trainImg)));
+    trainLabels.emplace_back(trainElement.second.occup); // label
+    trainImages.emplace_back(dlib::mat(dlib::cv_image<uint8_t>(trainElement.first)));
   }
   
-  dlib::dnn_trainer<AlexNet> trainer(alexNet_, dlib::sgd(), {0});
-  trainer.set_learning_rate(1e-5);
-  trainer.set_min_learning_rate(1e-8);
+  dlib::dnn_trainer<AlexNet> trainer(alexNet_, dlib::sgd());
+  trainer.set_learning_rate(0.01);
+  trainer.set_min_learning_rate(0.0001);
   trainer.set_mini_batch_size(256);
   trainer.set_iterations_without_progress_threshold(1000);
-  trainer.set_max_num_epochs(200);
+  trainer.set_max_num_epochs(300);
   
   trainer.be_verbose();
   
@@ -33,6 +30,6 @@ void AlexNetSolver::train(const TrainInputSet &trainData) {
 }
 
 bool AlexNetSolver::detect(const cv::Mat &extractedParkingLotMat) {
-  dlib::matrix<dlib::rgb_pixel> matDlib = dlib::mat(dlib::cv_image<dlib::rgb_pixel>(extractedParkingLotMat));
-  return alexNet_(matDlib);
+  dlib::matrix<uint8_t> matDlib = dlib::mat(dlib::cv_image<uint8_t>(extractedParkingLotMat));
+  return alexNet_(matDlib) > 0.5f;
 }

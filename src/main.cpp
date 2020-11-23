@@ -29,18 +29,22 @@ int main(int argc, char **argv) {
   std::array<Space, SPACES_COUNT> spaces{};
   InputSet::loadParkingGeometry("data/parking_map.txt", spaces);
   
-  TrainInputSet trainInputSet("data/train_images.txt", spaces);
   DetectorInputSet inputSet("data/test_images.txt", spaces);
-  
-  CannySolver cannySolver(274, 3);
-  cannySolver.solve(inputSet);
-  cannySolver.evaluate(groundTruth);
+  TrainInputSet trainInputSet("data/train_images.txt", spaces);
+
+
+//  CannySolver cannySolver(274, 3);
+//  cannySolver.solve(inputSet);
+////  cannySolver.solve(inputSet, groundTruth);
+//  cannySolver.evaluate(groundTruth);
 //  cannySolver.drawDetection();
+  
   
   AlexNetSolver alexNetSolver;
   alexNetSolver.train(trainInputSet);
   alexNetSolver.solve(inputSet);
   alexNetSolver.evaluate(groundTruth);
+  alexNetSolver.drawDetection();
   
 }
 //void convert_to_ml(const std::vector<cv::Mat> &train_samples, cv::Mat &trainData) {

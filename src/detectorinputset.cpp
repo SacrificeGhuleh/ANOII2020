@@ -4,7 +4,6 @@
 
 #include <stdexcept>
 #include <fstream>
-#include <random>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/opencv.hpp>
@@ -28,7 +27,6 @@ DetectorInputSet::DetectorInputSet(const std::string &filename, const std::array
     inputSet_.emplace_back(std::make_pair(frame, extractedSpaces));
   }
   
-  std::shuffle(inputSet_.begin(), inputSet_.end(), std::mt19937(std::random_device()()));
 }
 
 const std::vector<DetectorInputSet::InputPair> &DetectorInputSet::getInputSet() const {

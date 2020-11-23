@@ -13,7 +13,7 @@ class AlexNetSolver : public TrainedSolver {
 public:
   AlexNetSolver() : TrainedSolver("AlexNet detector") {};
   
-  virtual void train(const TrainInputSet &trainData) override;
+  virtual void trainImpl(const TrainInputSet &trainData) override;
   
   virtual bool detect(const cv::Mat &extractedParkingLotMat) override;
 
@@ -31,7 +31,7 @@ private:
                               dlib::relu<dlib::con<384, 3, 3, 1, 1,
                                   dlib::max_pool<3, 3, 2, 2, dlib::relu<dlib::con<256, 5, 5, 1, 1,
                                       dlib::max_pool<3, 3, 2, 2, dlib::relu<dlib::con<96, 11, 11, 4, 4,
-                                          dlib::input<dlib::matrix<dlib::rgb_pixel
+                                          dlib::input<dlib::matrix<uint8_t
                                           >>>>>>>>>>>>>>>>>>>>>>>>;
 //@formatter:on
   
