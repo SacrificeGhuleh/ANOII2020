@@ -19,6 +19,8 @@ public:
   const std::vector<LoadedData> &getInputSet() const;
 
 private:
+  void getExtendedImages(const cv::Mat &inputImg, std::vector<cv::Mat> &extendedImages);
+  
   std::vector<LoadedData> inputSet_;
 };
 
