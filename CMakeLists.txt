@@ -14,5 +14,6 @@ INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
 
 # Where to find dlib
 find_package(dlib REQUIRED)
+FIND_PACKAGE(Threads REQUIRED)
 
 ADD_SUBDIRECTORY(src)
