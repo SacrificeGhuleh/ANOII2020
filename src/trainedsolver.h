@@ -10,9 +10,13 @@
 
 class TrainedSolver : public Solver {
 public:
-  TrainedSolver(const std::string &name);
+  TrainedSolver(const std::string &name, const std::string &fileName) : Solver(name), dnnFilename(fileName) {};
   
   virtual void train(const TrainInputSet &trainData);
+
+protected:
+  const std::string dnnFilename;
+
 private:
   virtual void trainImpl(const TrainInputSet &trainData) = 0;
 };

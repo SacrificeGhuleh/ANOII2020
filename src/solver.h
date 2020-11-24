@@ -24,6 +24,7 @@ public:
   SolveScore evaluate(const std::vector<uint8_t> &groundTruth);
   
   double solve(const DetectorInputSet &inputSet);
+  
   double solve(const DetectorInputSet &inputSet, const std::vector<uint8_t> &groundTruth);
   
   virtual bool detect(const cv::Mat &extractedParkingLotMat) = 0;
@@ -32,8 +33,7 @@ public:
 
 protected:
   typedef std::pair<const cv::Mat *, std::vector<Space>> OccupancyData;
-  std::string solverName;
-//  std::vector<uint8_t> detectionResults;
+  const std::string solverName;
   std::vector<OccupancyData> results;
   
 };

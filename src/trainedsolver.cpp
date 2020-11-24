@@ -6,8 +6,6 @@
 #include "trainedsolver.h"
 #include "timer.h"
 
-TrainedSolver::TrainedSolver(const std::string &name) : Solver(name) {}
-
 void TrainedSolver::train(const TrainInputSet &trainData) {
   Timer timer;
   trainImpl(trainData);

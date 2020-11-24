@@ -11,7 +11,7 @@
 
 class AlexNetSolver : public TrainedSolver {
 public:
-  AlexNetSolver() : TrainedSolver("AlexNet detector") {};
+  AlexNetSolver(const std::string &filename) : TrainedSolver("AlexNet detector", filename) {};
   
   virtual void trainImpl(const TrainInputSet &trainData) override;
   

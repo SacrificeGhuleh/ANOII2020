@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
 //  cannySolver.drawDetection();
   
   
-  AlexNetSolver alexNetSolver;
+  AlexNetSolver alexNetSolver("alex.bin");
   alexNetSolver.train(trainInputSet);
   alexNetSolver.solve(inputSet);
   alexNetSolver.evaluate(groundTruth);
