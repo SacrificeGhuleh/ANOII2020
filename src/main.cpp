@@ -4,7 +4,39 @@
 #include "detectorinputset.h"
 #include "cannysolver.h"
 #include "traininputset.h"
-#include "alexnetsolver.h"
+#include "trainedsolver.h"
+#include "netdef.h"
+
+using AlexNetSolver = TrainedSolver<AlexNet>;
+
+void getGroundTruth(const std::string &filename, std::vector<uint8_t> &groundTruthVector);
+
+int main(int argc, char **argv) {
+  
+  std::vector<uint8_t> groundTruth;
+  getGroundTruth("data/groundtruth.txt", groundTruth);
+  
+  std::array<Space, SPACES_COUNT> spaces{};
+  InputSet::loadParkingGeometry("data/parking_map.txt", spaces);
+  
+  DetectorInputSet inputSet("data/test_images.txt", spaces);
+  TrainInputSet trainInputSet("data/train_images.txt", spaces);
+  
+  
+  CannySolver cannySolver(274, 3);
+  cannySolver.solve(inputSet);
+//  cannySolver.solve(inputSet, groundTruth);
+  cannySolver.evaluate(groundTruth);
+//  cannySolver.drawDetection();
+  
+  
+  AlexNetSolver alexNetSolver("AlexNet", "alex.bin");
+  alexNetSolver.train(trainInputSet);
+  alexNetSolver.solve(inputSet);
+  alexNetSolver.evaluate(groundTruth);
+//  alexNetSolver.drawDetection();
+  
+}
 
 void getGroundTruth(const std::string &filename, std::vector<uint8_t> &groundTruthVector) {
   std::ifstream groundTruthFile(filename);
@@ -21,32 +53,8 @@ void getGroundTruth(const std::string &filename, std::vector<uint8_t> &groundTru
   groundTruthFile.close();
 }
 
-int main(int argc, char **argv) {
-  
-  std::vector<uint8_t> groundTruth;
-  getGroundTruth("data/groundtruth.txt", groundTruth);
-  
-  std::array<Space, SPACES_COUNT> spaces{};
-  InputSet::loadParkingGeometry("data/parking_map.txt", spaces);
-  
-  DetectorInputSet inputSet("data/test_images.txt", spaces);
-  TrainInputSet trainInputSet("data/train_images.txt", spaces);
 
 
-//  CannySolver cannySolver(274, 3);
-//  cannySolver.solve(inputSet);
-////  cannySolver.solve(inputSet, groundTruth);
-//  cannySolver.evaluate(groundTruth);
-//  cannySolver.drawDetection();
-  
-  
-  AlexNetSolver alexNetSolver("alex.bin");
-  alexNetSolver.train(trainInputSet);
-  alexNetSolver.solve(inputSet);
-  alexNetSolver.evaluate(groundTruth);
-  alexNetSolver.drawDetection();
-  
-}
 //void convert_to_ml(const std::vector<cv::Mat> &train_samples, cv::Mat &trainData) {
 //  //--Convert data
 //  const int rows = (int) train_samples.size();
