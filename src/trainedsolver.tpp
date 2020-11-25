@@ -4,3 +4,6 @@
 
 template
 class TrainedSolver<AlexNet>;
+
+template
+class TrainedSolver<LeNet>;

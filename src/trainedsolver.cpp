@@ -14,9 +14,9 @@
 #include "timer.h"
 
 template<class T_NetType>
-void TrainedSolver<T_NetType>::train(const TrainInputSet &trainData) {
+void TrainedSolver<T_NetType>::train(const TrainInputSet &trainData, const NetCfg &netCfg) {
   Timer timer;
-  trainImpl(trainData);
+  trainImpl(trainData, netCfg);
   std::cout << "Trained in " << timer.elapsed() << " seconds\n";
 }
 
@@ -27,7 +27,7 @@ bool TrainedSolver<T_NetType>::detect(const cv::Mat &extractedParkingLotMat) {
 }
 
 template<class T_NetType>
-void TrainedSolver<T_NetType>::trainImpl(const TrainInputSet &trainData) {
+void TrainedSolver<T_NetType>::trainImpl(const TrainInputSet &trainData, const NetCfg &netCfg) {
   if (std::filesystem::exists(dnnFilename)) {
     std::cout << "Loading net from file\n";
     dlib::deserialize(dnnFilename) >> net_;
@@ -43,11 +43,11 @@ void TrainedSolver<T_NetType>::trainImpl(const TrainInputSet &trainData) {
     }
     
     dlib::dnn_trainer<T_NetType> trainer(net_, dlib::sgd());
-    trainer.set_learning_rate(0.01);
-    trainer.set_min_learning_rate(0.001);
-    trainer.set_mini_batch_size(256);
-    trainer.set_iterations_without_progress_threshold(1000);
-    trainer.set_max_num_epochs(300);
+    trainer.set_learning_rate(netCfg.learningRate);
+    trainer.set_min_learning_rate(netCfg.minLearningRate);
+    trainer.set_mini_batch_size(netCfg.miniBatchSize);
+    trainer.set_iterations_without_progress_threshold(netCfg.stepsWithoutProgress);
+    trainer.set_max_num_epochs(netCfg.maxEpochs);
     
     trainer.be_verbose();
     
