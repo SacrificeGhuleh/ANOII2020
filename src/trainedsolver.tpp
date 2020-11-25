@@ -7,3 +7,6 @@ class TrainedSolver<AlexNet>;
 
 template
 class TrainedSolver<LeNet>;
+
+template
+class TrainedSolver<VGG19>;

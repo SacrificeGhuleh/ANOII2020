@@ -4,12 +4,12 @@
 
 #ifndef ANOII2020_NETDEF_H
 #define ANOII2020_NETDEF_H
-// @formatter:off
 
 #include <dlib/dnn.h>
 
 // AFTER ADDING NEW DNN DEFINITION, DO NOT FORGET TO UPDATE TRAINEDSOLVER.TPP
 
+// @formatter:off
 using AlexNet = dlib::loss_multiclass_log<
   dlib::relu<dlib::fc<1000,
   dlib::dropout<dlib::relu<dlib::fc<4096,
@@ -29,6 +29,35 @@ using LeNet = dlib::loss_multiclass_log<
   dlib::max_pool<2,2,2,2,dlib::relu<dlib::con<16,5,5,1,1,
   dlib::max_pool<2,2,2,2,dlib::relu<dlib::con<6,5,5,1,1,
   dlib::input<dlib::matrix<uint8_t>>>>>>>>>>>>>>;
+
+using VGG19 = dlib::loss_multiclass_log<
+  dlib::relu<dlib::fc<2,
+  dlib::relu<dlib::fc<4096,
+  dlib::dropout <
+  dlib::relu<dlib::fc<4096,
+  dlib::max_pool<2, 2, 2, 2,
+  dlib::relu<dlib::con<512, 3, 3, 1, 1,
+  dlib::relu<dlib::con<512, 3, 3, 1, 1,
+  dlib::relu<dlib::con<512, 3, 3, 1, 1,
+  dlib::relu<dlib::con<512, 3, 3, 1, 1,
+  dlib::max_pool<2, 2, 2, 2,
+  dlib::relu<dlib::con<512, 3, 3, 1, 1,
+  dlib::relu<dlib::con<512, 3, 3, 1, 1,
+  dlib::relu<dlib::con<512, 3, 3, 1, 1,
+  dlib::relu<dlib::con<512, 3, 3, 1, 1,
+  dlib::max_pool<2, 2, 2, 2,
+  dlib::relu<dlib::con<256, 3, 3, 1, 1,
+  dlib::relu<dlib::con<256, 3, 3, 1, 1,
+  dlib::relu<dlib::con<256, 3, 3, 1, 1,
+  dlib::relu<dlib::con<256, 3, 3, 1, 1,
+  dlib::max_pool<2, 2, 2, 2,
+  dlib::relu<dlib::con<128, 3, 3, 1, 1,
+  dlib::relu<dlib::con<128, 3, 3, 1, 1,
+  dlib::max_pool<2, 2, 2, 2,
+  dlib::relu<dlib::con<64, 3, 3, 1, 1,
+  dlib::relu<dlib::con<64, 3, 3, 1, 1,
+  dlib::input<dlib::matrix<uint8_t>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>;
+
 //@formatter:on
 
 
