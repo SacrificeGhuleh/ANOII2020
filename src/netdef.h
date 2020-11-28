@@ -7,7 +7,7 @@
 
 #include <dlib/dnn.h>
 
-// AFTER ADDING NEW DNN DEFINITION, DO NOT FORGET TO UPDATE TRAINEDSOLVER.TPP
+// AFTER ADDING NEW DNN DEFINITION, DO NOT FORGET TO UPDATE TRAINEDDLIBSOLVER.TPP
 
 // @formatter:off
 using AlexNet = dlib::loss_multiclass_log<
@@ -23,7 +23,7 @@ using AlexNet = dlib::loss_multiclass_log<
   dlib::input<dlib::matrix<uint8_t>>>>>>>>>>>>>>>>>>>>>>>>;
 
 using LeNet = dlib::loss_multiclass_log<
-  dlib::fc<10,
+  dlib::fc<2,
   dlib::relu<dlib::fc<84,
   dlib::relu<dlib::fc<120,
   dlib::max_pool<2,2,2,2,dlib::relu<dlib::con<16,5,5,1,1,

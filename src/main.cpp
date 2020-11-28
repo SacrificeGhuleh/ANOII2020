@@ -4,12 +4,13 @@
 #include "detectorinputset.h"
 #include "cannysolver.h"
 #include "traininputset.h"
-#include "trainedsolver.h"
+#include "traineddlibsolver.h"
 #include "netdef.h"
+#include "dlibnetcfg.h"
 
-using AlexNetSolver = TrainedSolver<AlexNet>;
-using LeNetSolver = TrainedSolver<LeNet>;
-using Vgg19Solver = TrainedSolver<VGG19>;
+using AlexNetSolver = TrainedDlibSolver<AlexNet>;
+using LeNetSolver = TrainedDlibSolver<LeNet>;
+using Vgg19Solver = TrainedDlibSolver<VGG19>;
 
 void getGroundTruth(const std::string &filename, std::vector<uint8_t> &groundTruthVector);
 
@@ -23,33 +24,33 @@ int main(int argc, char **argv) {
   
   DetectorInputSet inputSet("data/test_images.txt", spaces);
   TrainInputSet trainInputSet("data/train_images.txt", spaces);
-  
+
 //  CannySolver cannySolver(274, 3);
 //  cannySolver.solve(inputSet);
 //  cannySolver.solve(inputSet, groundTruth);
 //  cannySolver.evaluate(groundTruth);
 //  cannySolver.drawDetection();
+  
+  
+  DlibNetCfg alexNetCfg(0.01, 0.001, 256, 1000, 300);
+  AlexNetSolver alexNetSolver("AlexNet", "alex.bin");
+  alexNetSolver.train(trainInputSet, alexNetCfg);
+  alexNetSolver.solve(inputSet);
+  alexNetSolver.evaluate(groundTruth);
+  alexNetSolver.drawDetection();
 
-//
-//  NetCfg alexNetCfg(0.01, 0.001, 256, 1000, 300);
-//  AlexNetSolver alexNetSolver("AlexNet", "alex.bin");
-//  alexNetSolver.train(trainInputSet, alexNetCfg);
-//  alexNetSolver.solve(inputSet);
-//  alexNetSolver.evaluate(groundTruth);
-//  alexNetSolver.drawDetection();
-
-//  NetCfg lenetCfg(0.1, 1e-6, 256, 1000, 300);
+//  DlibNetCfg lenetCfg(0.1, 1e-6, 1024, 1000, 300);
 //  LeNetSolver lenetSolver("LeNet", "lenet.bin");
 //  lenetSolver.train(trainInputSet, lenetCfg);
 //  lenetSolver.solve(inputSet);
 //  lenetSolver.evaluate(groundTruth);
 //  lenetSolver.drawDetection();
-  
-  NetCfg vgg19NetCfg(0.01, 0.001, 128, 1000, 300);
-  Vgg19Solver vgg19NetSolver("VGG19", "vgg19.bin");
-  vgg19NetSolver.train(trainInputSet, vgg19NetCfg);
-  vgg19NetSolver.solve(inputSet);
-  vgg19NetSolver.evaluate(groundTruth);
+
+//  DlibNetCfg vgg19NetCfg(0.01, 0.001, 128, 1000, 300);
+//  Vgg19Solver vgg19NetSolver("VGG19", "vgg19.bin");
+//  vgg19NetSolver.train(trainInputSet, vgg19NetCfg);
+//  vgg19NetSolver.solve(inputSet);
+//  vgg19NetSolver.evaluate(groundTruth);
 //  vgg19NetSolver.drawDetection();
 
 }

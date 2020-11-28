@@ -5,25 +5,26 @@
 #ifndef ANOII2020_TRAINEDSOLVER_H
 #define ANOII2020_TRAINEDSOLVER_H
 
+#include <iostream>
+
 #include "traininputset.h"
 #include "solver.h"
-#include "netcfg.h"
+#include "timer.h"
 
-template<class T_NetType>
+template<typename T_NET_CFG>
 class TrainedSolver : public Solver {
 public:
-  TrainedSolver(const std::string &name, const std::string &fileName) : Solver(name), dnnFilename(fileName) {};
+  explicit TrainedSolver(const std::string &name) : Solver(name) {};
   
-  virtual void train(const TrainInputSet &trainData, const NetCfg &netCfg);
-  
-  virtual bool detect(const cv::Mat &extractedParkingLotMat) override;
+  virtual void train(const TrainInputSet &trainData, const T_NET_CFG &netCfg) {
+    Timer timer;
+    trainImpl(trainData, netCfg);
+    std::cout << "Trained in " << timer.elapsed() << " seconds\n";
+  }
 
 protected:
   
-  virtual void trainImpl(const TrainInputSet &trainData, const NetCfg &netCfg);
-  
-  const std::string dnnFilename;
-  T_NetType net_;
+  virtual void trainImpl(const TrainInputSet &trainData, const T_NET_CFG &netCfg) = 0;
 };
 
 #endif //ANOII2020_TRAINEDSOLVER_H
