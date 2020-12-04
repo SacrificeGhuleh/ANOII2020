@@ -7,6 +7,7 @@
 #include "traineddlibsolver.h"
 #include "netdef.h"
 #include "dlibnetcfg.h"
+#include "hogsolver.h"
 
 using AlexNetSolver = TrainedDlibSolver<AlexNet>;
 using LeNetSolver = TrainedDlibSolver<LeNet>;
@@ -30,14 +31,22 @@ int main(int argc, char **argv) {
 //  cannySolver.solve(inputSet, groundTruth);
 //  cannySolver.evaluate(groundTruth);
 //  cannySolver.drawDetection();
+
+//
+//  DlibNetCfg alexNetCfg(0.01, 0.001, 256, 1000, 300);
+//  AlexNetSolver alexNetSolver("AlexNet", "alex.bin");
+//  alexNetSolver.train(trainInputSet, alexNetCfg);
+//  alexNetSolver.solve(inputSet);
+//  alexNetSolver.evaluate(groundTruth);
+//  alexNetSolver.drawDetection();
   
-  
-  DlibNetCfg alexNetCfg(0.01, 0.001, 256, 1000, 300);
-  AlexNetSolver alexNetSolver("AlexNet", "alex.bin");
-  alexNetSolver.train(trainInputSet, alexNetCfg);
-  alexNetSolver.solve(inputSet);
-  alexNetSolver.evaluate(groundTruth);
-  alexNetSolver.drawDetection();
+  CvNetCfg hogCfg;
+  HogSolver hogSolver("hog.bin");
+  hogSolver.train(trainInputSet, hogCfg);
+  hogSolver.solve(inputSet);
+  hogSolver.evaluate(groundTruth);
+  hogSolver.drawDetection();
+
 
 //  DlibNetCfg lenetCfg(0.1, 1e-6, 1024, 1000, 300);
 //  LeNetSolver lenetSolver("LeNet", "lenet.bin");

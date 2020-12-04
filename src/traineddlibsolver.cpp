@@ -19,9 +19,9 @@ bool TrainedDlibSolver<T_NetType>::detect(const cv::Mat &extractedParkingLotMat)
 
 template<class T_NetType>
 void TrainedDlibSolver<T_NetType>::trainImpl(const TrainInputSet &trainData, const DlibNetCfg &netCfg) {
-  if (std::filesystem::exists(dnnFilename)) {
+  if (std::filesystem::exists(filename_)) {
     std::cout << "Loading net from file\n";
-    dlib::deserialize(dnnFilename) >> net_;
+    dlib::deserialize(filename_) >> net_;
   } else {
     std::cout << "Net not found, training\n";
     
@@ -45,7 +45,7 @@ void TrainedDlibSolver<T_NetType>::trainImpl(const TrainInputSet &trainData, con
     
     trainer.train(trainImages, trainLabels);
     
-    dlib::serialize(dnnFilename) << net_;
+    dlib::serialize(filename_) << net_;
   }
 }
 

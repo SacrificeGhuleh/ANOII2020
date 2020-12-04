@@ -14,7 +14,7 @@
 template<typename T_NET_CFG>
 class TrainedSolver : public Solver {
 public:
-  explicit TrainedSolver(const std::string &name) : Solver(name) {};
+  explicit TrainedSolver(const std::string &name, const std::string &fileName) : filename_(fileName), Solver(name) {};
   
   virtual void train(const TrainInputSet &trainData, const T_NET_CFG &netCfg) {
     Timer timer;
@@ -23,6 +23,7 @@ public:
   }
 
 protected:
+  const std::string filename_;
   
   virtual void trainImpl(const TrainInputSet &trainData, const T_NET_CFG &netCfg) = 0;
 };

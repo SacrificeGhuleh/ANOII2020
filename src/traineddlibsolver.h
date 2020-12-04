@@ -11,7 +11,7 @@
 template<class T_NetType>
 class TrainedDlibSolver : public TrainedSolver<DlibNetCfg> {
 public:
-  TrainedDlibSolver(const std::string &name, const std::string &fileName) : TrainedSolver(name), dnnFilename(fileName) {};
+  TrainedDlibSolver(const std::string &name, const std::string &fileName) : TrainedSolver(name, fileName) {};
 
 //  virtual void train(const TrainInputSet &trainData, const DlibNetCfg &netCfg);
   
@@ -21,7 +21,6 @@ protected:
   
   virtual void trainImpl(const TrainInputSet &trainData, const DlibNetCfg &netCfg);
   
-  const std::string dnnFilename;
   T_NetType net_;
 };
 
