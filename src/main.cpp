@@ -14,6 +14,8 @@
 using AlexNetSolver = TrainedDlibSolver<AlexNet>;
 using LeNetSolver = TrainedDlibSolver<LeNet>;
 using Vgg19Solver = TrainedDlibSolver<VGG19>;
+using ResNetSolver = TrainedDlibSolver<ResNet>;
+using GoogLeNetSolver = TrainedDlibSolver<GoogLeNet>;
 
 void getGroundTruth(const std::string &filename, std::vector<uint8_t> &groundTruthVector);
 
@@ -25,6 +27,8 @@ int main(int argc, char **argv) {
       ("l,lenet", "Use LeNet", cxxopts::value<bool>()->default_value("false"))
       ("a,alex", "Use AlexNet", cxxopts::value<bool>()->default_value("false"))
       ("v,vgg19", "Use VGG19", cxxopts::value<bool>()->default_value("false"))
+      ("r,resnet", "Use ResNet", cxxopts::value<bool>()->default_value("false"))
+      ("g,googlenet", "Use GoogLeNet", cxxopts::value<bool>()->default_value("false"))
       ("d,draw", "Draw detection", cxxopts::value<bool>()->default_value("false"))
       ("h,help", "Print usage");
   
@@ -50,6 +54,8 @@ int main(int argc, char **argv) {
   LeNetSolver lenetSolver("LeNet", "lenet.bin", cv::Size(28, 28));
   AlexNetSolver alexNetSolver("AlexNet", "alex.bin");
   Vgg19Solver vgg19NetSolver("VGG19", "vgg19.bin", cv::Size(32, 32));
+  ResNetSolver resNetSolver("ResNet", "resnet.bin", cv::Size(32, 32));
+  GoogLeNetSolver googLeNetSolver("GoogLeNet", "googlenet.bin", cv::Size(32, 32));
   
   
   if (cliResult["canny"].as<bool>()) {
@@ -73,6 +79,18 @@ int main(int argc, char **argv) {
     DlibNetCfg vgg19NetCfg(0.01, 1e-7, 64, 500, 300);
     vgg19NetSolver.train(trainInputSet, vgg19NetCfg);
     vgg19NetSolver.solve(inputSet);
+  }
+  
+  if (cliResult["resnet"].as<bool>()) {
+    DlibNetCfg resNetCfg(0.01, 1e-7, 64, 128, 300);
+    resNetSolver.train(trainInputSet, resNetCfg);
+    resNetSolver.solve(inputSet);
+  }
+  
+  if (cliResult["googlenet"].as<bool>()) {
+    DlibNetCfg googleNetCfg(0.01, 1e-5, 128, 128, 300);
+    googLeNetSolver.train(trainInputSet, googleNetCfg);
+    googLeNetSolver.solve(inputSet);
   }
 
 //  CvNetCfg hogCfg;
@@ -110,6 +128,21 @@ int main(int argc, char **argv) {
       vgg19NetSolver.drawDetection();
     }
   }
+  
+  if (cliResult["resnet"].as<bool>()) {
+    resNetSolver.evaluate(groundTruth);
+    if (cliResult["draw"].as<bool>()) {
+      resNetSolver.drawDetection();
+    }
+  }
+  
+  if (cliResult["googlenet"].as<bool>()) {
+    googLeNetSolver.evaluate(groundTruth);
+    if (cliResult["draw"].as<bool>()) {
+      googLeNetSolver.drawDetection();
+    }
+  }
+  
   return 0;
 }
 
