@@ -8,12 +8,17 @@
 #include <dlib/dnn.h>
 
 #include <dlib/opencv/cv_image.h>
+#include <opencv2/imgproc.hpp>
 #include "traineddlibsolver.h"
 
 
 template<class T_NetType>
 bool TrainedDlibSolver<T_NetType>::detect(const cv::Mat &extractedParkingLotMat) {
-  dlib::matrix<uint8_t> matDlib = dlib::mat(dlib::cv_image<uint8_t>(extractedParkingLotMat));
+//  cv::Mat dnnInput = extractedParkingLotMat.clone();
+//  resize(dnnInput);
+  cv::Mat dnnInput;
+  cv::resize(extractedParkingLotMat, dnnInput, resizeTo_);
+  dlib::matrix<uint8_t> matDlib = dlib::mat(dlib::cv_image<uint8_t>(dnnInput));
   return net_(matDlib) > 0.5f;
 }
 
@@ -31,7 +36,11 @@ void TrainedDlibSolver<T_NetType>::trainImpl(const TrainInputSet &trainData, con
     
     for (const auto &trainElement: trainData.getInputSet()) {
       trainLabels.emplace_back(trainElement.second.occup); // label
-      trainImages.emplace_back(dlib::mat(dlib::cv_image<uint8_t>(trainElement.first)));
+      //cv::Mat dnnInput = trainElement.first.clone();
+      //resize(dnnInput);
+      cv::Mat dnnInput;
+      cv::resize(trainElement.first, dnnInput, resizeTo_);
+      trainImages.emplace_back(dlib::mat(dlib::cv_image<uint8_t>(dnnInput)));
     }
     
     dlib::dnn_trainer<T_NetType> trainer(net_, dlib::sgd());
@@ -44,8 +53,16 @@ void TrainedDlibSolver<T_NetType>::trainImpl(const TrainInputSet &trainData, con
     trainer.be_verbose();
     
     trainer.train(trainImages, trainLabels);
+    net_.clean();
     
     dlib::serialize(filename_) << net_;
+  }
+}
+
+template<class T_NetType>
+void TrainedDlibSolver<T_NetType>::resize(cv::Mat &resizeMat) {
+  if (resizeTo_ != cv::Size(80, 80)) {
+    cv::resize(resizeMat, resizeMat, resizeTo_);
   }
 }
 

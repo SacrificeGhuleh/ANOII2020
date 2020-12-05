@@ -9,6 +9,8 @@
 #include "dlibnetcfg.h"
 #include "hogsolver.h"
 
+#include <cxxopts.hpp>
+
 using AlexNetSolver = TrainedDlibSolver<AlexNet>;
 using LeNetSolver = TrainedDlibSolver<LeNet>;
 using Vgg19Solver = TrainedDlibSolver<VGG19>;
@@ -16,6 +18,21 @@ using Vgg19Solver = TrainedDlibSolver<VGG19>;
 void getGroundTruth(const std::string &filename, std::vector<uint8_t> &groundTruthVector);
 
 int main(int argc, char **argv) {
+  cxxopts::Options options("ParkingLotOccupationDetec", "Parking lot detection tool");
+  
+  options.add_options()
+      ("c,canny", "Use Canny detector", cxxopts::value<bool>()->default_value("false"))
+      ("l,lenet", "Use LeNet", cxxopts::value<bool>()->default_value("false"))
+      ("a,alex", "Use AlexNet", cxxopts::value<bool>()->default_value("false"))
+      ("d,draw", "Draw detection", cxxopts::value<bool>()->default_value("false"))
+      ("h,help", "Print usage");
+  
+  auto cliResult = options.parse(argc, argv);
+  
+  if (cliResult.count("help") || argc < 2) {
+    std::cout << options.help() << std::endl;
+    return 0;
+  }
   
   std::vector<uint8_t> groundTruth;
   getGroundTruth("data/groundtruth.txt", groundTruth);
@@ -25,35 +42,34 @@ int main(int argc, char **argv) {
   
   DetectorInputSet inputSet("data/test_images.txt", spaces);
   TrainInputSet trainInputSet("data/train_images.txt", spaces);
-
-//  CannySolver cannySolver(274, 3);
-//  cannySolver.solve(inputSet);
-//  cannySolver.solve(inputSet, groundTruth);
-//  cannySolver.evaluate(groundTruth);
-//  cannySolver.drawDetection();
-
-//
-//  DlibNetCfg alexNetCfg(0.01, 0.001, 256, 1000, 300);
-//  AlexNetSolver alexNetSolver("AlexNet", "alex.bin");
-//  alexNetSolver.train(trainInputSet, alexNetCfg);
-//  alexNetSolver.solve(inputSet);
-//  alexNetSolver.evaluate(groundTruth);
-//  alexNetSolver.drawDetection();
   
-  CvNetCfg hogCfg;
-  HogSolver hogSolver("hog.bin");
-  hogSolver.train(trainInputSet, hogCfg);
-  hogSolver.solve(inputSet);
-  hogSolver.evaluate(groundTruth);
-  hogSolver.drawDetection();
+  CannySolver cannySolver(274, 3);
+  LeNetSolver lenetSolver("LeNet", "lenet.bin", cv::Size(28, 28));
+  AlexNetSolver alexNetSolver("AlexNet", "alex.bin");
+  
+  
+  if (cliResult["canny"].as<bool>()) {
+    cannySolver.solve(inputSet);
+//    cannySolver.solve(inputSet, groundTruth); // For debugging
+  }
+  
+  if (cliResult["lenet"].as<bool>()) {
+    DlibNetCfg lenetCfg(0.01, 1e-6, 128, 1000, 300);
+    lenetSolver.train(trainInputSet, lenetCfg);
+    lenetSolver.solve(inputSet);
+  }
+  if (cliResult["alex"].as<bool>()) {
+    DlibNetCfg alexNetCfg(0.01, 0.001, 256, 1000, 300);
+    alexNetSolver.train(trainInputSet, alexNetCfg);
+    alexNetSolver.solve(inputSet);
+  }
 
-
-//  DlibNetCfg lenetCfg(0.1, 1e-6, 1024, 1000, 300);
-//  LeNetSolver lenetSolver("LeNet", "lenet.bin");
-//  lenetSolver.train(trainInputSet, lenetCfg);
-//  lenetSolver.solve(inputSet);
-//  lenetSolver.evaluate(groundTruth);
-//  lenetSolver.drawDetection();
+//  CvNetCfg hogCfg;
+//  HogSolver hogSolver("hog.bin");
+//  hogSolver.train(trainInputSet, hogCfg);
+//  hogSolver.solve(inputSet);
+//  hogSolver.evaluate(groundTruth);
+//  hogSolver.drawDetection();
 
 //  DlibNetCfg vgg19NetCfg(0.01, 0.001, 128, 1000, 300);
 //  Vgg19Solver vgg19NetSolver("VGG19", "vgg19.bin");
@@ -61,7 +77,28 @@ int main(int argc, char **argv) {
 //  vgg19NetSolver.solve(inputSet);
 //  vgg19NetSolver.evaluate(groundTruth);
 //  vgg19NetSolver.drawDetection();
-
+  
+  if (cliResult["canny"].as<bool>()) {
+    cannySolver.evaluate(groundTruth);
+    if (cliResult["draw"].as<bool>()) {
+      cannySolver.drawDetection();
+    }
+  }
+  
+  if (cliResult["alex"].as<bool>()) {
+    alexNetSolver.evaluate(groundTruth);
+    if (cliResult["draw"].as<bool>()) {
+      alexNetSolver.drawDetection();
+    }
+  }
+  if (cliResult["lenet"].as<bool>()) {
+    lenetSolver.evaluate(groundTruth);
+    if (cliResult["draw"].as<bool>()) {
+      lenetSolver.drawDetection();
+    }
+  }
+  
+  return 0;
 }
 
 void getGroundTruth(const std::string &filename, std::vector<uint8_t> &groundTruthVector) {

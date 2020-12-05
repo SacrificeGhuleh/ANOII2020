@@ -8,5 +8,5 @@ set(SRC main.cpp timer.h colors.h solver.cpp solver.h trainedsolver.h solvescore
 add_executable(${PROJECT_NAME} ${SRC} cli.h)
 add_executable(CannyTester tester.cpp cli.h)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS} dlib::dlib)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS} dlib::dlib cxxopts)
 target_link_libraries(CannyTester PRIVATE ${OpenCV_LIBS})
