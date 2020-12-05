@@ -24,6 +24,7 @@ int main(int argc, char **argv) {
       ("c,canny", "Use Canny detector", cxxopts::value<bool>()->default_value("false"))
       ("l,lenet", "Use LeNet", cxxopts::value<bool>()->default_value("false"))
       ("a,alex", "Use AlexNet", cxxopts::value<bool>()->default_value("false"))
+      ("v,vgg19", "Use VGG19", cxxopts::value<bool>()->default_value("false"))
       ("d,draw", "Draw detection", cxxopts::value<bool>()->default_value("false"))
       ("h,help", "Print usage");
   
@@ -34,6 +35,7 @@ int main(int argc, char **argv) {
     return 0;
   }
   
+  // Load test data
   std::vector<uint8_t> groundTruth;
   getGroundTruth("data/groundtruth.txt", groundTruth);
   
@@ -43,9 +45,11 @@ int main(int argc, char **argv) {
   DetectorInputSet inputSet("data/test_images.txt", spaces);
   TrainInputSet trainInputSet("data/train_images.txt", spaces);
   
+  // Create instances of solvers
   CannySolver cannySolver(274, 3);
   LeNetSolver lenetSolver("LeNet", "lenet.bin", cv::Size(28, 28));
   AlexNetSolver alexNetSolver("AlexNet", "alex.bin");
+  Vgg19Solver vgg19NetSolver("VGG19", "vgg19.bin", cv::Size(32, 32));
   
   
   if (cliResult["canny"].as<bool>()) {
@@ -58,10 +62,17 @@ int main(int argc, char **argv) {
     lenetSolver.train(trainInputSet, lenetCfg);
     lenetSolver.solve(inputSet);
   }
+  
   if (cliResult["alex"].as<bool>()) {
     DlibNetCfg alexNetCfg(0.01, 0.001, 256, 1000, 300);
     alexNetSolver.train(trainInputSet, alexNetCfg);
     alexNetSolver.solve(inputSet);
+  }
+  
+  if (cliResult["vgg19"].as<bool>()) {
+    DlibNetCfg vgg19NetCfg(0.01, 1e-7, 64, 500, 300);
+    vgg19NetSolver.train(trainInputSet, vgg19NetCfg);
+    vgg19NetSolver.solve(inputSet);
   }
 
 //  CvNetCfg hogCfg;
@@ -70,18 +81,19 @@ int main(int argc, char **argv) {
 //  hogSolver.solve(inputSet);
 //  hogSolver.evaluate(groundTruth);
 //  hogSolver.drawDetection();
-
-//  DlibNetCfg vgg19NetCfg(0.01, 0.001, 128, 1000, 300);
-//  Vgg19Solver vgg19NetSolver("VGG19", "vgg19.bin");
-//  vgg19NetSolver.train(trainInputSet, vgg19NetCfg);
-//  vgg19NetSolver.solve(inputSet);
-//  vgg19NetSolver.evaluate(groundTruth);
-//  vgg19NetSolver.drawDetection();
   
+  // Evaluation & drawing
   if (cliResult["canny"].as<bool>()) {
     cannySolver.evaluate(groundTruth);
     if (cliResult["draw"].as<bool>()) {
       cannySolver.drawDetection();
+    }
+  }
+  
+  if (cliResult["lenet"].as<bool>()) {
+    lenetSolver.evaluate(groundTruth);
+    if (cliResult["draw"].as<bool>()) {
+      lenetSolver.drawDetection();
     }
   }
   
@@ -91,13 +103,13 @@ int main(int argc, char **argv) {
       alexNetSolver.drawDetection();
     }
   }
-  if (cliResult["lenet"].as<bool>()) {
-    lenetSolver.evaluate(groundTruth);
+  
+  if (cliResult["vgg19"].as<bool>()) {
+    vgg19NetSolver.evaluate(groundTruth);
     if (cliResult["draw"].as<bool>()) {
-      lenetSolver.drawDetection();
+      vgg19NetSolver.drawDetection();
     }
   }
-  
   return 0;
 }
 
