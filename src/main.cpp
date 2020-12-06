@@ -8,6 +8,7 @@
 #include "netdef.h"
 #include "dlibnetcfg.h"
 #include "hogsolver.h"
+#include "combinedsolver.h"
 
 #include <cxxopts.hpp>
 
@@ -29,6 +30,8 @@ int main(int argc, char **argv) {
       ("v,vgg19", "Use VGG19", cxxopts::value<bool>()->default_value("false"))
       ("r,resnet", "Use ResNet", cxxopts::value<bool>()->default_value("false"))
       ("g,googlenet", "Use GoogLeNet", cxxopts::value<bool>()->default_value("false"))
+      ("comb1", "Combination of AlexNet, ResNet and GoogLeNet", cxxopts::value<bool>()->default_value("false"))
+      ("combultimate", "Combination of AlexNet, ResNet and GoogLeNet", cxxopts::value<bool>()->default_value("false"))
       ("all", "Use ALL methods", cxxopts::value<bool>()->default_value("false"))
       ("d,draw", "Draw detection", cxxopts::value<bool>()->default_value("false"))
       ("h,help", "Print usage");
@@ -57,6 +60,18 @@ int main(int argc, char **argv) {
   Vgg19Solver vgg19NetSolver("VGG19", "vgg19.bin", cv::Size(32, 32));
   ResNetSolver resNetSolver("ResNet", "resnet.bin", cv::Size(32, 32));
   GoogLeNetSolver googLeNetSolver("GoogLeNet", "googlenet.bin", cv::Size(32, 32));
+  
+  CombinedSolver comb1Solver("Combination of AlexNet, ResNet and GoogLeNet", std::vector<Solver *>{
+      &alexNetSolver,
+      &resNetSolver,
+      &googLeNetSolver});
+  
+  CombinedSolver ultimateSolver("Ultimate crazy combination of all methods", std::vector<Solver *>{
+      &cannySolver,
+      &lenetSolver,
+      &alexNetSolver,
+      &vgg19NetSolver,
+      &resNetSolver}, 4. / 5.);
   
   
   if (cliResult["canny"].as<bool>() || cliResult["all"].as<bool>()) {
@@ -92,6 +107,14 @@ int main(int argc, char **argv) {
     DlibNetCfg googleNetCfg(0.01, 1e-5, 64, 128, 300);
     googLeNetSolver.train(trainInputSet, googleNetCfg);
     googLeNetSolver.solve(inputSet);
+  }
+  
+  if (cliResult["comb1"].as<bool>() || cliResult["all"].as<bool>()) {
+    comb1Solver.solve(inputSet);
+  }
+  
+  if (cliResult["combultimate"].as<bool>() || cliResult["all"].as<bool>()) {
+    ultimateSolver.solve(inputSet);
   }
 
 //  CvNetCfg hogCfg;
@@ -144,6 +167,20 @@ int main(int argc, char **argv) {
     }
   }
   
+  if (cliResult["comb1"].as<bool>() || cliResult["all"].as<bool>()) {
+    comb1Solver.evaluate(groundTruth);
+    if (cliResult["draw"].as<bool>()) {
+      comb1Solver.drawDetection();
+    }
+  }
+  
+  if (cliResult["combultimate"].as<bool>() || cliResult["all"].as<bool>()) {
+    ultimateSolver.evaluate(groundTruth);
+    if (cliResult["draw"].as<bool>()) {
+      ultimateSolver.drawDetection();
+    }
+  }
+  
   return 0;
 }
 
@@ -161,25 +198,3 @@ void getGroundTruth(const std::string &filename, std::vector<uint8_t> &groundTru
   
   groundTruthFile.close();
 }
-
-
-
-//void convert_to_ml(const std::vector<cv::Mat> &train_samples, cv::Mat &trainData) {
-//  //--Convert data
-//  const int rows = (int) train_samples.size();
-//  const int cols = (int) std::max(train_samples[0].cols, train_samples[0].rows);
-//  cv::Mat tmp(1, cols, CV_32FC1); //< used for transposition if needed
-//  trainData = cv::Mat(rows, cols, CV_32FC1);
-//  std::vector<Mat>::const_iterator itr = train_samples.begin();
-//  std::vector<Mat>::const_iterator end = train_samples.end();
-//  for (int i = 0; itr != end; ++itr, ++i) {
-//    CV_Assert(itr->cols == 1 ||
-//              itr->rows == 1);
-//    if (itr->cols == 1) {
-//      transpose(*(itr), tmp);
-//      tmp.copyTo(trainData.row(i));
-//    } else if (itr->rows == 1) {
-//      itr->copyTo(trainData.row(i));
-//    }
-//  }
-//}
