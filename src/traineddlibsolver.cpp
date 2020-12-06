@@ -23,11 +23,8 @@ bool TrainedDlibSolver<T_NetType>::detect(const cv::Mat &extractedParkingLotMat)
 }
 
 template<class T_NetType>
-void TrainedDlibSolver<T_NetType>::trainImpl(const TrainInputSet &trainData, const DlibNetCfg &netCfg) {
-  if (std::filesystem::exists(filename_)) {
-    std::cout << "Loading net from file\n";
-    dlib::deserialize(filename_) >> net_;
-  } else {
+void TrainedDlibSolver<T_NetType>::trainImpl(const TrainInputSet &trainData) {
+  if (!loadDnn()) {
     std::cout << "Net not found, training\n";
     
     std::vector<dlib::matrix<uint8_t>>
@@ -44,11 +41,11 @@ void TrainedDlibSolver<T_NetType>::trainImpl(const TrainInputSet &trainData, con
     }
     
     dlib::dnn_trainer<T_NetType> trainer(net_, dlib::sgd());
-    trainer.set_learning_rate(netCfg.learningRate);
-    trainer.set_min_learning_rate(netCfg.minLearningRate);
-    trainer.set_mini_batch_size(netCfg.miniBatchSize);
-    trainer.set_iterations_without_progress_threshold(netCfg.stepsWithoutProgress);
-    trainer.set_max_num_epochs(netCfg.maxEpochs);
+    trainer.set_learning_rate(netCfg_.learningRate);
+    trainer.set_min_learning_rate(netCfg_.minLearningRate);
+    trainer.set_mini_batch_size(netCfg_.miniBatchSize);
+    trainer.set_iterations_without_progress_threshold(netCfg_.stepsWithoutProgress);
+    trainer.set_max_num_epochs(netCfg_.maxEpochs);
     
     trainer.be_verbose();
     
@@ -64,6 +61,16 @@ void TrainedDlibSolver<T_NetType>::resize(cv::Mat &resizeMat) {
   if (resizeTo_ != cv::Size(80, 80)) {
     cv::resize(resizeMat, resizeMat, resizeTo_);
   }
+}
+
+template<class T_NetType>
+bool TrainedDlibSolver<T_NetType>::loadDnn() {
+  if (std::filesystem::exists(filename_)) {
+    std::cout << "Loading net from file\n";
+    dlib::deserialize(filename_) >> net_;
+    return true;
+  }
+  return false;
 }
 
 #include "traineddlibsolver.tpp"

@@ -23,9 +23,9 @@ public:
   
   SolveScore evaluate(const std::vector<uint8_t> &groundTruth);
   
-  double solve(const DetectorInputSet &inputSet);
+  virtual double solve(const DetectorInputSet &inputSet);
   
-  double solve(const DetectorInputSet &inputSet, const std::vector<uint8_t> &groundTruth);
+  virtual double solve(const DetectorInputSet &inputSet, const std::vector<uint8_t> &groundTruth);
   
   virtual bool detect(const cv::Mat &extractedParkingLotMat) = 0;
   

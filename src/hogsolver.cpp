@@ -9,7 +9,7 @@
 //}
 #include "hogsolver.h"
 
-HogSolver::HogSolver(const std::string &fileName) : TrainedCvSolver("HOG Solver", fileName) {
+HogSolver::HogSolver(const std::string &fileName, const CvNetCfg &netCfg) : TrainedCvSolver("HOG Solver", fileName, netCfg) {
   hogDescriptor_.winSize = cv::Size(80, 80);
   hogDescriptor_.blockSize = cv::Size(8, 8);
   hogDescriptor_.cellSize = cv::Size(4, 4);

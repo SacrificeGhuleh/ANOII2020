@@ -5,26 +5,22 @@
 #include <filesystem>
 #include "trainedcvsolver.h"
 
-TrainedCvSolver::TrainedCvSolver(const std::string &name, const std::string &fileName) : TrainedSolver(name, fileName) {}
+TrainedCvSolver::TrainedCvSolver(
+    const std::string &name,
+    const std::string &fileName,
+    const CvNetCfg &netCfg)
+    : TrainedSolver(name, fileName, netCfg) {}
 
-void TrainedCvSolver::trainImpl(const TrainInputSet &trainData, const CvNetCfg &netCfg) {
+void TrainedCvSolver::trainImpl(const TrainInputSet &trainData) {
   if (std::filesystem::exists(filename_)) {
     std::cout << "Loading net from file\n";
   } else {
     std::cout << "Net not found, training\n";
-    /* Default values to train svm_ */
+    
     svm_->setTermCriteria(cv::TermCriteria(cv::TermCriteria::MAX_ITER, 1000, 1e-6));
     //RBF
-    svm_->setGamma(0.15); // pro hist eq 0.14, pro non eq hist 0.15
+    svm_->setGamma(0.15);
     svm_->setKernel(cv::ml::SVM::RBF);
-    
-    //CHI2
-    //svm_->setGamma(0.28); // pro hist eq 0.28, pro non eq hist 0.29
-    //   svm_->setKernel( svm_::CHI2 );
-    
-    //POLY
-    //svm_->setDegree(8); // pro hist eq 7, pro non eq hist 8
-    //svm_->setKernel(svm_::POLY);
     
     cv::Mat mlTrainData;
     std::vector<uint8_t> mlTrainLabels;

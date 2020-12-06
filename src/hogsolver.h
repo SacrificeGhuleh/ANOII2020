@@ -17,7 +17,7 @@ class HogSolver : public TrainedCvSolver {
 //  virtual bool detect(const cv::Mat &extractedParkingLotMat) override;
 //
 public:
-  HogSolver(const std::string &fileName);
+  HogSolver(const std::string &fileName, const CvNetCfg &netCfg);
 
 protected:
   virtual void process(const cv::Mat &processMat, std::vector<float> &descriptor) override;

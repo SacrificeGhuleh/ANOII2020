@@ -12,10 +12,10 @@
 
 class TrainedCvSolver : public TrainedSolver<CvNetCfg> {
 public:
-  TrainedCvSolver(const std::string &name, const std::string &fileName);
+  TrainedCvSolver(const std::string &name, const std::string &fileName, const CvNetCfg &netCfg);
 
 protected:
-  virtual void trainImpl(const TrainInputSet &trainData, const CvNetCfg &netCfg) override;
+  virtual void trainImpl(const TrainInputSet &trainData) override;
   
   cv::Ptr<cv::ml::SVM> svm_;
   

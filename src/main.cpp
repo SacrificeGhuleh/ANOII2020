@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
       ("r,resnet", "Use ResNet", cxxopts::value<bool>()->default_value("false"))
       ("g,googlenet", "Use GoogLeNet", cxxopts::value<bool>()->default_value("false"))
       ("comb1", "Combination of AlexNet, ResNet and GoogLeNet", cxxopts::value<bool>()->default_value("false"))
-      ("combultimate", "Combination of AlexNet, ResNet and GoogLeNet", cxxopts::value<bool>()->default_value("false"))
+      ("combultimate", "Combination of ALL solvers", cxxopts::value<bool>()->default_value("false"))
       ("all", "Use ALL methods", cxxopts::value<bool>()->default_value("false"))
       ("d,draw", "Draw detection", cxxopts::value<bool>()->default_value("false"))
       ("h,help", "Print usage");
@@ -55,11 +55,11 @@ int main(int argc, char **argv) {
   
   // Create instances of solvers
   CannySolver cannySolver(274, 3);
-  LeNetSolver lenetSolver("LeNet", "lenet.bin", cv::Size(28, 28));
-  AlexNetSolver alexNetSolver("AlexNet", "alex2.bin");
-  Vgg19Solver vgg19NetSolver("VGG19", "vgg19.bin", cv::Size(32, 32));
-  ResNetSolver resNetSolver("ResNet", "resnet.bin", cv::Size(32, 32));
-  GoogLeNetSolver googLeNetSolver("GoogLeNet", "googlenet.bin", cv::Size(32, 32));
+  LeNetSolver lenetSolver("LeNet", "lenet.bin", lenetCfg, cv::Size(28, 28));
+  AlexNetSolver alexNetSolver("AlexNet", "alex2.bin", alexNetCfg);
+  Vgg19Solver vgg19NetSolver("VGG19", "vgg19.bin", vgg19NetCfg, cv::Size(32, 32));
+  ResNetSolver resNetSolver("ResNet", "resnet.bin", resNetCfg, cv::Size(32, 32));
+  GoogLeNetSolver googLeNetSolver("GoogLeNet", "googlenet.bin", googleNetCfg, cv::Size(32, 32));
   
   CombinedSolver comb1Solver("Combination of AlexNet, ResNet and GoogLeNet", std::vector<Solver *>{
       &alexNetSolver,
@@ -80,32 +80,27 @@ int main(int argc, char **argv) {
   }
   
   if (cliResult["lenet"].as<bool>() || cliResult["all"].as<bool>()) {
-    DlibNetCfg lenetCfg(0.01, 1e-6, 128, 1000, 300);
-    lenetSolver.train(trainInputSet, lenetCfg);
+    lenetSolver.train(trainInputSet);
     lenetSolver.solve(inputSet);
   }
   
   if (cliResult["alex"].as<bool>() || cliResult["all"].as<bool>()) {
-    DlibNetCfg alexNetCfg(0.01, 0.00001, 64, 128, 300);
-    alexNetSolver.train(trainInputSet, alexNetCfg);
+    alexNetSolver.train(trainInputSet);
     alexNetSolver.solve(inputSet);
   }
   
   if (cliResult["vgg19"].as<bool>() || cliResult["all"].as<bool>()) {
-    DlibNetCfg vgg19NetCfg(0.01, 1e-7, 64, 500, 300);
-    vgg19NetSolver.train(trainInputSet, vgg19NetCfg);
+    vgg19NetSolver.train(trainInputSet);
     vgg19NetSolver.solve(inputSet);
   }
   
   if (cliResult["resnet"].as<bool>() || cliResult["all"].as<bool>()) {
-    DlibNetCfg resNetCfg(0.01, 1e-7, 64, 128, 300);
-    resNetSolver.train(trainInputSet, resNetCfg);
+    resNetSolver.train(trainInputSet);
     resNetSolver.solve(inputSet);
   }
   
   if (cliResult["googlenet"].as<bool>() || cliResult["all"].as<bool>()) {
-    DlibNetCfg googleNetCfg(0.01, 1e-5, 64, 128, 300);
-    googLeNetSolver.train(trainInputSet, googleNetCfg);
+    googLeNetSolver.train(trainInputSet);
     googLeNetSolver.solve(inputSet);
   }
   
