@@ -208,3 +208,19 @@ _deps
 # End of https://www.toptal.com/developers/gitignore/api/c++,intellij+all,code,clion+all,cmake
 
 bin/
+
+*.toc
+
+doc/main.synctex.gz
+
+doc/main.log
+
+doc/main.fls
+
+*.fdb_latexmk
+
+*.aux
+
+*.pygstyle
+
+*.pygtex
