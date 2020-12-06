@@ -29,6 +29,7 @@ int main(int argc, char **argv) {
       ("v,vgg19", "Use VGG19", cxxopts::value<bool>()->default_value("false"))
       ("r,resnet", "Use ResNet", cxxopts::value<bool>()->default_value("false"))
       ("g,googlenet", "Use GoogLeNet", cxxopts::value<bool>()->default_value("false"))
+      ("all", "Use ALL methods", cxxopts::value<bool>()->default_value("false"))
       ("d,draw", "Draw detection", cxxopts::value<bool>()->default_value("false"))
       ("h,help", "Print usage");
   
@@ -52,43 +53,43 @@ int main(int argc, char **argv) {
   // Create instances of solvers
   CannySolver cannySolver(274, 3);
   LeNetSolver lenetSolver("LeNet", "lenet.bin", cv::Size(28, 28));
-  AlexNetSolver alexNetSolver("AlexNet", "alex.bin");
+  AlexNetSolver alexNetSolver("AlexNet", "alex2.bin");
   Vgg19Solver vgg19NetSolver("VGG19", "vgg19.bin", cv::Size(32, 32));
   ResNetSolver resNetSolver("ResNet", "resnet.bin", cv::Size(32, 32));
   GoogLeNetSolver googLeNetSolver("GoogLeNet", "googlenet.bin", cv::Size(32, 32));
   
   
-  if (cliResult["canny"].as<bool>()) {
+  if (cliResult["canny"].as<bool>() || cliResult["all"].as<bool>()) {
     cannySolver.solve(inputSet);
 //    cannySolver.solve(inputSet, groundTruth); // For debugging
   }
   
-  if (cliResult["lenet"].as<bool>()) {
+  if (cliResult["lenet"].as<bool>() || cliResult["all"].as<bool>()) {
     DlibNetCfg lenetCfg(0.01, 1e-6, 128, 1000, 300);
     lenetSolver.train(trainInputSet, lenetCfg);
     lenetSolver.solve(inputSet);
   }
   
-  if (cliResult["alex"].as<bool>()) {
-    DlibNetCfg alexNetCfg(0.01, 0.001, 256, 1000, 300);
+  if (cliResult["alex"].as<bool>() || cliResult["all"].as<bool>()) {
+    DlibNetCfg alexNetCfg(0.01, 0.00001, 64, 128, 300);
     alexNetSolver.train(trainInputSet, alexNetCfg);
     alexNetSolver.solve(inputSet);
   }
   
-  if (cliResult["vgg19"].as<bool>()) {
+  if (cliResult["vgg19"].as<bool>() || cliResult["all"].as<bool>()) {
     DlibNetCfg vgg19NetCfg(0.01, 1e-7, 64, 500, 300);
     vgg19NetSolver.train(trainInputSet, vgg19NetCfg);
     vgg19NetSolver.solve(inputSet);
   }
   
-  if (cliResult["resnet"].as<bool>()) {
+  if (cliResult["resnet"].as<bool>() || cliResult["all"].as<bool>()) {
     DlibNetCfg resNetCfg(0.01, 1e-7, 64, 128, 300);
     resNetSolver.train(trainInputSet, resNetCfg);
     resNetSolver.solve(inputSet);
   }
   
-  if (cliResult["googlenet"].as<bool>()) {
-    DlibNetCfg googleNetCfg(0.01, 1e-5, 128, 128, 300);
+  if (cliResult["googlenet"].as<bool>() || cliResult["all"].as<bool>()) {
+    DlibNetCfg googleNetCfg(0.01, 1e-5, 64, 128, 300);
     googLeNetSolver.train(trainInputSet, googleNetCfg);
     googLeNetSolver.solve(inputSet);
   }
@@ -101,42 +102,42 @@ int main(int argc, char **argv) {
 //  hogSolver.drawDetection();
   
   // Evaluation & drawing
-  if (cliResult["canny"].as<bool>()) {
+  if (cliResult["canny"].as<bool>() || cliResult["all"].as<bool>()) {
     cannySolver.evaluate(groundTruth);
     if (cliResult["draw"].as<bool>()) {
       cannySolver.drawDetection();
     }
   }
   
-  if (cliResult["lenet"].as<bool>()) {
+  if (cliResult["lenet"].as<bool>() || cliResult["all"].as<bool>()) {
     lenetSolver.evaluate(groundTruth);
     if (cliResult["draw"].as<bool>()) {
       lenetSolver.drawDetection();
     }
   }
   
-  if (cliResult["alex"].as<bool>()) {
+  if (cliResult["alex"].as<bool>() || cliResult["all"].as<bool>()) {
     alexNetSolver.evaluate(groundTruth);
     if (cliResult["draw"].as<bool>()) {
       alexNetSolver.drawDetection();
     }
   }
   
-  if (cliResult["vgg19"].as<bool>()) {
+  if (cliResult["vgg19"].as<bool>() || cliResult["all"].as<bool>()) {
     vgg19NetSolver.evaluate(groundTruth);
     if (cliResult["draw"].as<bool>()) {
       vgg19NetSolver.drawDetection();
     }
   }
   
-  if (cliResult["resnet"].as<bool>()) {
+  if (cliResult["resnet"].as<bool>() || cliResult["all"].as<bool>()) {
     resNetSolver.evaluate(groundTruth);
     if (cliResult["draw"].as<bool>()) {
       resNetSolver.drawDetection();
     }
   }
   
-  if (cliResult["googlenet"].as<bool>()) {
+  if (cliResult["googlenet"].as<bool>() || cliResult["all"].as<bool>()) {
     googLeNetSolver.evaluate(groundTruth);
     if (cliResult["draw"].as<bool>()) {
       googLeNetSolver.drawDetection();

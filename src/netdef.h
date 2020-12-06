@@ -22,8 +22,20 @@ using LeNet = dlib::loss_multiclass_log<
   dlib::max_pool<2,2,2,2,dlib::relu<dlib::con<6,5,5,1,1,
   dlib::input<dlib::matrix<uint8_t>>>>>>>>>>>>>>;
 
+//using AlexNet = dlib::loss_multiclass_log<
+//  dlib::relu<dlib::fc<1000,
+//  dlib::dropout<dlib::relu<dlib::fc<4096,
+//  dlib::dropout<dlib::relu<dlib::fc<4096,
+//  dlib::max_pool<3, 3, 2, 2,
+//  dlib::relu<dlib::con<384, 3, 3, 1, 1,
+//  dlib::relu<dlib::con<384, 3, 3, 1, 1,
+//  dlib::relu<dlib::con<384, 3, 3, 1, 1,
+//  dlib::max_pool<3, 3, 2, 2, dlib::relu<dlib::con<256, 5, 5, 1, 1,
+//  dlib::max_pool<3, 3, 2, 2, dlib::relu<dlib::con<96, 11, 11, 4, 4,
+//  dlib::input<dlib::matrix<uint8_t>>>>>>>>>>>>>>>>>>>>>>>>;
+//
 using AlexNet = dlib::loss_multiclass_log<
-  dlib::relu<dlib::fc<1000,
+  dlib::fc<numberOfClasses,
   dlib::dropout<dlib::relu<dlib::fc<4096,
   dlib::dropout<dlib::relu<dlib::fc<4096,
   dlib::max_pool<3, 3, 2, 2,
@@ -32,7 +44,19 @@ using AlexNet = dlib::loss_multiclass_log<
   dlib::relu<dlib::con<384, 3, 3, 1, 1,
   dlib::max_pool<3, 3, 2, 2, dlib::relu<dlib::con<256, 5, 5, 1, 1,
   dlib::max_pool<3, 3, 2, 2, dlib::relu<dlib::con<96, 11, 11, 4, 4,
-  dlib::input<dlib::matrix<uint8_t>>>>>>>>>>>>>>>>>>>>>>>>;
+  dlib::input<dlib::matrix<uint8_t>>>>>>>>>>>>>>>>>>>>>>>;
+
+// https://github.com/coding-ai/cnn_arch_cpp/blob/master/alexnet/alexnet.cpp
+//using AlexNet = dlib::loss_multiclass_log<
+//  dlib::fc<numberOfClasses,
+//  dlib::dropout<dlib::relu<dlib::fc<4096,
+//  dlib::dropout<dlib::relu<dlib::fc<4096,
+//  dlib::max_pool<3, 3, 2, 2, dlib::relu<dlib::con<256, 3, 3, 1, 1,
+//  dlib::relu<dlib::con<384, 3, 3, 1, 1,
+//  dlib::relu<dlib::con<384, 3, 3, 1, 1,
+//  dlib::max_pool<3, 3, 2, 2, dlib::l2normalize<dlib::relu<dlib::con<256, 5, 5, 1, 1,
+//  dlib::max_pool<3, 3, 2, 2, dlib::l2normalize<dlib::relu<dlib::con<96, 11, 11, 1, 1,
+//  dlib::input<dlib::matrix<uint8_t>>>>>>>>>>>>>>>>>>>>>>>>>;
 
 using VGG19 = dlib::loss_multiclass_log<
   dlib::relu<dlib::fc<numberOfClasses,
