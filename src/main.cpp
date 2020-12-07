@@ -11,6 +11,7 @@
 #include "combinedsolver.h"
 
 #include <cxxopts.hpp>
+#include <filesystem>
 
 using AlexNetSolver = TrainedDlibSolver<AlexNet>;
 using LeNetSolver = TrainedDlibSolver<LeNet>;
@@ -21,8 +22,8 @@ using GoogLeNetSolver = TrainedDlibSolver<GoogLeNet>;
 void getGroundTruth(const std::string &filename, std::vector<uint8_t> &groundTruthVector);
 
 int main(int argc, char **argv) {
-  cxxopts::Options options("ParkingLotOccupationDetec", "Parking lot detection tool");
   
+  cxxopts::Options options("ParkingLotOccupationDetector", "Parking lot detection tool");
   options.add_options()
       ("c,canny", "Use Canny detector", cxxopts::value<bool>()->default_value("false"))
       ("l,lenet", "Use LeNet", cxxopts::value<bool>()->default_value("false"))
@@ -34,6 +35,8 @@ int main(int argc, char **argv) {
       ("combultimate", "Combination of ALL solvers", cxxopts::value<bool>()->default_value("false"))
       ("all", "Use ALL methods", cxxopts::value<bool>()->default_value("false"))
       ("d,draw", "Draw detection", cxxopts::value<bool>()->default_value("false"))
+      ("w,wait", "Waitkey for drawing", cxxopts::value<uint8_t>()->default_value("1"))
+      ("s,save", "Save detection to disk, only if drawing is enabled", cxxopts::value<bool>()->default_value("false"))
       ("h,help", "Print usage");
   
   auto cliResult = options.parse(argc, argv);
@@ -42,6 +45,9 @@ int main(int argc, char **argv) {
     std::cout << options.help() << std::endl;
     return 0;
   }
+  
+  bool saveDetection = cliResult["save"].as<bool>();
+  int waitkey = cliResult["wait"].as<uint8_t>();
   
   // Load test data
   std::vector<uint8_t> groundTruth;
@@ -123,56 +129,56 @@ int main(int argc, char **argv) {
   if (cliResult["canny"].as<bool>() || cliResult["all"].as<bool>()) {
     cannySolver.evaluate(groundTruth);
     if (cliResult["draw"].as<bool>()) {
-      cannySolver.drawDetection();
+      cannySolver.drawDetection(waitkey, saveDetection, std::filesystem::path("out/canny/"));
     }
   }
   
   if (cliResult["lenet"].as<bool>() || cliResult["all"].as<bool>()) {
     lenetSolver.evaluate(groundTruth);
     if (cliResult["draw"].as<bool>()) {
-      lenetSolver.drawDetection();
+      lenetSolver.drawDetection(waitkey, saveDetection, std::filesystem::path("out/lenet/"));
     }
   }
   
   if (cliResult["alex"].as<bool>() || cliResult["all"].as<bool>()) {
     alexNetSolver.evaluate(groundTruth);
     if (cliResult["draw"].as<bool>()) {
-      alexNetSolver.drawDetection();
+      alexNetSolver.drawDetection(waitkey, saveDetection, std::filesystem::path("out/alex/"));
     }
   }
   
   if (cliResult["vgg19"].as<bool>() || cliResult["all"].as<bool>()) {
     vgg19NetSolver.evaluate(groundTruth);
     if (cliResult["draw"].as<bool>()) {
-      vgg19NetSolver.drawDetection();
+      vgg19NetSolver.drawDetection(waitkey, saveDetection, std::filesystem::path("out/vgg19/"));
     }
   }
   
   if (cliResult["resnet"].as<bool>() || cliResult["all"].as<bool>()) {
     resNetSolver.evaluate(groundTruth);
     if (cliResult["draw"].as<bool>()) {
-      resNetSolver.drawDetection();
+      resNetSolver.drawDetection(waitkey, saveDetection, std::filesystem::path("out/resnet/"));
     }
   }
   
   if (cliResult["googlenet"].as<bool>() || cliResult["all"].as<bool>()) {
     googLeNetSolver.evaluate(groundTruth);
     if (cliResult["draw"].as<bool>()) {
-      googLeNetSolver.drawDetection();
+      googLeNetSolver.drawDetection(waitkey, saveDetection, std::filesystem::path("out/googlenet/"));
     }
   }
   
   if (cliResult["comb1"].as<bool>() || cliResult["all"].as<bool>()) {
     comb1Solver.evaluate(groundTruth);
     if (cliResult["draw"].as<bool>()) {
-      comb1Solver.drawDetection();
+      comb1Solver.drawDetection(waitkey, saveDetection, std::filesystem::path("out/comb1/"));
     }
   }
   
   if (cliResult["combultimate"].as<bool>() || cliResult["all"].as<bool>()) {
     ultimateSolver.evaluate(groundTruth);
     if (cliResult["draw"].as<bool>()) {
-      ultimateSolver.drawDetection();
+      ultimateSolver.drawDetection(waitkey, saveDetection, std::filesystem::path("out/comb2/"));
     }
   }
   

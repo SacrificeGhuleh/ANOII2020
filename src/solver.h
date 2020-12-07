@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+#include <filesystem>
 
 // OpenCV headers
 #include <opencv2/core/mat.hpp>
@@ -29,7 +30,7 @@ public:
   
   virtual bool detect(const cv::Mat &extractedParkingLotMat) = 0;
   
-  void drawDetection();
+  void drawDetection(int delay = 0, bool saveToDisk = false, const std::filesystem::path &path = std::filesystem::path("out/"));
 
 protected:
   typedef std::pair<const cv::Mat *, std::vector<Space>> OccupancyData;

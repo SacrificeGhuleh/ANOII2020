@@ -4,6 +4,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <filesystem>
 #include <opencv2/opencv.hpp>
 
 #include "solver.h"
@@ -129,8 +130,16 @@ double Solver::solve(const DetectorInputSet &inputSet, const std::vector<uint8_t
 }
 
 
-void Solver::drawDetection() {
+void Solver::drawDetection(int delay, bool saveToDisk, const std::filesystem::path &path) {
   int sx, sy;
+  int counter = 0;
+  
+  
+  if (saveToDisk) {
+    if (!std::filesystem::is_directory(path) || !std::filesystem::exists(path)) { // Check if src folder exists
+      std::filesystem::create_directories(path); // create src folder
+    }
+  }
   
   for (const auto &result : results) {
     cv::Mat frame = result.first->clone();
@@ -156,8 +165,18 @@ void Solver::drawDetection() {
         cv::circle(frame, cv::Point(sx, sy - 25), 12, Color::Green, 2);
       }
     }
+    cv::putText(frame, solverName, cv::Point(10, 30), cv::FONT_HERSHEY_PLAIN, 2, Color::Red, 2);
     cv::imshow("Detection", frame);
-    cv::waitKey();
+    if (saveToDisk) {
+      std::stringstream ss;
+      ss << "detection" << counter << ".png";
+      
+      std::filesystem::path writePath = path;
+      writePath.append(ss.str());
+      cv::imwrite(writePath.string(), frame);
+    }
+    counter++;
+    cv::waitKey(delay);
   }
   cv::destroyAllWindows();
 }
